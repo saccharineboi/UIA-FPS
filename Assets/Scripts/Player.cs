@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(CharacterController))]
 public class Player : MonoBehaviour
@@ -16,13 +17,14 @@ public class Player : MonoBehaviour
         public float jumpDeltaDuration;
         public float jumpRayLength;
 
+        public const float baseSpeed = 6f;
+
         Vector3 playerOrientation;
         Vector3 cameraOrientation;
         CharacterController characterController;
         bool isJumping;
         Camera playerCamera;
-        [SerializeField]
-        int health = 100;
+        [SerializeField] int health = 100;
 
         void Start()
         {
@@ -30,7 +32,19 @@ public class Player : MonoBehaviour
                 playerCamera = GetComponentInChildren<Camera>();
                 playerOrientation = transform.localEulerAngles;
                 cameraOrientation = cameraTransform.localEulerAngles;
-                LockCursor();
+                // LockCursor();
+
+                Messenger<float>.AddListener(GameEvent.SPEED_CHANGED, OnSpeedChanged);
+        }
+
+        void OnDestroy()
+        {
+                Messenger<float>.RemoveListener(GameEvent.SPEED_CHANGED, OnSpeedChanged);
+        }
+
+        void OnSpeedChanged(float speed)
+        {
+                this.speed = baseSpeed * speed;
         }
 
         void Update()
@@ -73,7 +87,7 @@ public class Player : MonoBehaviour
 
         void Shoot()
         {
-                if (Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
                 {
                         float xpos = playerCamera.pixelWidth / 2;
                         float ypos = playerCamera.pixelHeight / 2;
@@ -88,6 +102,7 @@ public class Player : MonoBehaviour
                                         if (enemy != null)
                                         {
                                                 enemy.GetHit();
+                                                Messenger.Broadcast(GameEvent.ENEMY_HIT);
                                         }
                                 }
                                 else

@@ -6,8 +6,7 @@ public class GameManager : MonoBehaviour
 {
         public Transform enemySpawnPos;
 
-        [SerializeField]
-        GameObject enemyPrefab;
+        [SerializeField] GameObject enemyPrefab;
         GameObject enemy;
 
         void Start()

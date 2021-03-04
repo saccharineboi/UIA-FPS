@@ -7,14 +7,20 @@ public class Enemy : MonoBehaviour
         public float speed;
         public float obstacleRange;
 
+        public const float baseSpeed = 3.0f;
+
         bool isDead;
-        [SerializeField]
-        GameObject fireballPrefab;
+        [SerializeField] GameObject fireballPrefab;
         GameObject fireball;
 
         void Start()
         {
-                
+                Messenger<float>.AddListener(GameEvent.SPEED_CHANGED, OnSpeedChanged);
+        }
+
+        void OnDestroy()
+        {
+                Messenger<float>.RemoveListener(GameEvent.SPEED_CHANGED, OnSpeedChanged);
         }
 
         void Update()
@@ -23,6 +29,11 @@ public class Enemy : MonoBehaviour
                 {
                         Wander(); 
                 }
+        }
+
+        void OnSpeedChanged(float speed)
+        {
+                this.speed = baseSpeed * speed;
         }
 
         void Wander()
